@@ -3,6 +3,9 @@
 
 using namespace std;
 
+const COLORREF MY_LIGHTBLUE = RGB(75, 127, 196);
+const COLORREF MY_BISQUE    = RGB(255, 214, 89);
+
 int middleX;
 int middleY;
 
@@ -15,15 +18,30 @@ struct Button {
     HDC picture;
 };
 
+HDC block;
+HDC quest;
+HDC orange_but;
+HDC green_but;
+HDC blue_but;
+HDC purple_but;
+
 void background(COLORREF color);
 void drawMenu();
-void drawButton(Button but);
-void loadingAnimation(int delay);
+void drawButton(Button but, bool picture);
+void loadingAnimation(int delay, int speed);
 void mainFunc();
 
 int main()
 {
     txCreateWindow(1300, 600);
+
+    block      = txLoadImage("pictures\\block.bmp");
+    quest      = txLoadImage("pictures\\question.bmp");
+    orange_but = txLoadImage("pictures\\orange_but.bmp");
+    green_but  = txLoadImage("pictures\\green_but.bmp");
+    blue_but   = txLoadImage("pictures\\blue_but.bmp");
+    purple_but = txLoadImage("pictures\\purple_but.bmp");
+
     middleX = txGetExtentX() / 2;
     middleY = txGetExtentY() / 2;
     extentX = txGetExtentX();
@@ -34,12 +52,26 @@ int main()
 
     txBegin();
 
-    txSleep(50);
-    loadingAnimation(10);
     txSleep(1000);
+
+    txSetColor(MY_LIGHTBLUE, 2);
+    txSetFillColor(TX_WHITE);
+    txRectangle(0, 0, extentX, extentY);
+
+    txSetColor(MY_LIGHTBLUE, 2);
+    txSetFillColor(MY_LIGHTBLUE);
+    txRectangle(0, 0, extentX, 50);
+
+    txSetColor(TX_BLACK, 3);
+    txSetFillColor(TX_WHITE);
+    txDrawText(0, 0, extentX, 50, "Конструктор уровней игры FallSimulation");
+
     drawMenu();
 
     txEnd();
+
+    txDeleteDC(block);
+    txDeleteDC(quest);
 
     txDisableAutoPause();
 }
@@ -50,7 +82,7 @@ void background(COLORREF color)
     txClear();
 }
 
-void drawButton(Button but)
+void drawButton(Button but, bool picture)
 {
     //drawing button
     txRectangle(but.coords.left,
@@ -84,11 +116,24 @@ void drawMenu()
         },  "Exit"
     };
 
+    //button "Settings"
+    Button buttonSets = {
+        {
+            extentX - 100, 0,
+            extentX     , 50
+        }, "Settings"
+    };
+
     txSetColor(TX_BLACK, 3);
     txSetFillColor(TX_WHITE);
 
-    drawButton(buttonPlay);
-    drawButton(buttonExit);
+    drawButton(buttonPlay, true);
+    drawButton(buttonExit, true);
+
+    txSetColor(TX_BLACK, 3);
+    txSetFillColor(TX_TRANSPARENT);
+
+    drawButton(buttonSets, false);
 
     txSleep(50);
 
@@ -98,10 +143,10 @@ void drawMenu()
                 txSleep(10);
             }
 
-            loadingAnimation(18);
+            loadingAnimation(15, 3);
             txSleep(50);
+            //txMessageBox("Запуск игры пока что не работает!", "Ошибка");
             mainFunc();
-            txMessageBox("Запуск игры пока что не работает!", "Ошибка");
         }
         if (In(txMousePos(), buttonExit.coords) && txMouseButtons() & 1) {
             while (txMouseButtons() & 1) {
@@ -110,16 +155,28 @@ void drawMenu()
 
             break;
         }
+        if (In(txMousePos(), buttonSets.coords) && txMouseButtons() & 1) {
+            while(txMouseButtons() & 1) {
+                txSleep(10);
+            }
+
+            txSetColor(TX_BLACK, 3);
+            txSetFillColor(MY_BISQUE);
+
+            txRectangle(middleX - 200, middleY - 100, middleX + 200, middleY + 100);
+        }
+
+        txSleep(10);
     }
 }
 
-void loadingAnimation(int delay)
+void loadingAnimation(int delay, int speed)
 {
     background(TX_WHITE);
 
     for (int circle_radius = 0;
         circle_radius * circle_radius < extentX * extentX + extentY * extentY;
-        circle_radius += 3) {
+        circle_radius += speed) {
 
         txSetColor(TX_BLACK, 2);
         txSetFillColor(TX_BLACK);
@@ -134,9 +191,6 @@ void loadingAnimation(int delay)
 
 void mainFunc()
 {
-    HDC block = txLoadImage("pictures\\block.bmp");
-    HDC quest = txLoadImage("pictures\\question.bmp");
-
     txBitBlt(txDC(), extentX - 60, 0,  60, 60, block);
     txBitBlt(txDC(), extentX - 60, 60, 60, 60, quest);
 }
