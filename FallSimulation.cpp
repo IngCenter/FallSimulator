@@ -12,6 +12,8 @@ int middleY;
 int extentX;
 int extentY;
 
+bool gameIsStarted = false;
+
 struct Button {
     RECT coords;
     const char* text;
@@ -138,32 +140,35 @@ void drawMenu()
     txSleep(50);
 
     while (!GetAsyncKeyState('Q')) {
-        if (In(txMousePos(), buttonPlay.coords) && txMouseButtons() & 1) {
-            while (txMouseButtons() & 1) {
-                txSleep(10);
+        if (!gameIsStarted) {
+            if (In(txMousePos(), buttonPlay.coords) && txMouseButtons() & 1) {
+                while (txMouseButtons() & 1) {
+                    txSleep(10);
+                }
+
+                loadingAnimation(2, 3);
+                txSleep(50);
+                //txMessageBox("Запуск игры пока что не работает!", "Ошибка");
+                mainFunc();
             }
+            if (In(txMousePos(), buttonExit.coords) && txMouseButtons() & 1) {
+                while (txMouseButtons() & 1) {
+                    txSleep(10);
+                }
 
-            loadingAnimation(15, 3);
-            txSleep(50);
-            //txMessageBox("Запуск игры пока что не работает!", "Ошибка");
-            mainFunc();
-        }
-        if (In(txMousePos(), buttonExit.coords) && txMouseButtons() & 1) {
-            while (txMouseButtons() & 1) {
-                txSleep(10);
+                break;
             }
+            if (In(txMousePos(), buttonSets.coords) && txMouseButtons() & 1) {
+                while(txMouseButtons() & 1) {
+                    txSleep(10);
+                }
 
-            break;
-        }
-        if (In(txMousePos(), buttonSets.coords) && txMouseButtons() & 1) {
-            while(txMouseButtons() & 1) {
-                txSleep(10);
+                txSetColor(TX_BLACK, 3);
+                txSetFillColor(MY_BISQUE);
+
+                txRectangle(middleX - 200, middleY - 100, middleX + 200, middleY + 100);
+                //code
             }
-
-            txSetColor(TX_BLACK, 3);
-            txSetFillColor(MY_BISQUE);
-
-            txRectangle(middleX - 200, middleY - 100, middleX + 200, middleY + 100);
         }
 
         txSleep(10);
@@ -191,7 +196,53 @@ void loadingAnimation(int delay, int speed)
 
 void mainFunc()
 {
-    txBitBlt(txDC(), extentX - 60, 0,  60, 60, block);
-    txBitBlt(txDC(), extentX - 60, 60, 60, 60, quest);
+    gameIsStarted = true;
+
+    RECT blockBut = {
+        extentX - 60, 0,  extentX, 60
+    };
+
+    RECT questBut = {
+        extentX - 60, 60, extentX, 120
+    };
+
+    bool clickedBlock = false;
+    bool clickedQuest = false;
+
+    while(!GetAsyncKeyState('Q'))
+    {
+        background(TX_WHITE);
+
+        txBitBlt(txDC(), extentX - 60, 0,  60, 60, block);
+        txBitBlt(txDC(), extentX - 60, 60, 60, 60, quest);
+
+        //block "block"
+        if (In(txMousePos(), blockBut) && txMouseButtons() & 1) {
+            clickedBlock = true;
+        }
+        if (txMouseButtons() & 1 && clickedBlock) {
+            txBitBlt(txDC(), txMouseX() - 30, txMouseY() - 30, 60, 60, block);
+
+            if (!(txMouseButtons() & 1)) {
+                txBitBlt(txDC(), txMouseX() - 30, txMouseY() - 30, 60, 60, block);
+                clickedBlock = false;
+            }
+        }
+
+        //block "quest"
+        if (In(txMousePos(), questBut) && txMouseButtons() & 1) {
+            clickedQuest = true;
+        }
+        if (txMouseButtons() & 1 && clickedQuest) {
+            txBitBlt(txDC(), txMouseX() - 30, txMouseY() - 30, 60, 60, quest);
+
+            if (!(txMouseButtons() & 1)) {
+                txBitBlt(txDC(), txMouseX() - 30, txMouseY() - 30, 60, 60, quest);
+                clickedQuest = false;
+            }
+        }
+
+        txSleep(10);
+    }
 }
 
