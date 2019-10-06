@@ -1,10 +1,15 @@
 #include <TXLib.h>
 #include <iostream>
+#include <fstream>
 
 using namespace std;
 
 const COLORREF MY_LIGHTBLUE = RGB(75, 127, 196);
 const COLORREF MY_BISQUE    = RGB(255, 214, 89);
+const int      BLOCK_TYPE   = 0;
+const int      QUEST_TYPE   = 1;
+const int      WATER_TYPE   = 2;
+const int      FIRE_TYPE    = 3;
 
 int middleX;
 int middleY;
@@ -18,6 +23,13 @@ struct Button {
     RECT coords;
     const char* text;
     HDC picture;
+};
+
+struct MapPart {
+    RECT coords;
+    bool visible;
+    HDC picture;
+    int blocktype;
 };
 
 HDC block;
@@ -146,9 +158,8 @@ void drawMenu()
                     txSleep(10);
                 }
 
-                loadingAnimation(2, 3);
+                //loadingAnimation(2, 3);
                 txSleep(50);
-                //txMessageBox("Запуск игры пока что не работает!", "Ошибка");
                 mainFunc();
             }
             if (In(txMousePos(), buttonExit.coords) && txMouseButtons() & 1) {
@@ -183,6 +194,8 @@ void loadingAnimation(int delay, int speed)
         circle_radius * circle_radius < extentX * extentX + extentY * extentY;
         circle_radius += speed) {
 
+        background(TX_WHITE);
+
         txSetColor(TX_BLACK, 2);
         txSetFillColor(TX_BLACK);
 
@@ -198,6 +211,8 @@ void mainFunc()
 {
     gameIsStarted = true;
 
+    int arrElem = 0;
+
     RECT blockBut = {
         extentX - 60, 0,  extentX, 60
     };
@@ -206,15 +221,33 @@ void mainFunc()
         extentX - 60, 60, extentX, 120
     };
 
+    RECT doneBut = {
+        extentX - 60, extentY - 60, extentX, extentY
+    };
+
+    MapPart mapParts[12];
+
     bool clickedBlock = false;
     bool clickedQuest = false;
 
-    while(!GetAsyncKeyState('Q'))
-    {
+    while (!GetAsyncKeyState('Q')) {
         background(TX_WHITE);
 
         txBitBlt(txDC(), extentX - 60, 0,  60, 60, block);
         txBitBlt(txDC(), extentX - 60, 60, 60, 60, quest);
+
+        for (int elem = 0; elem < 12; elem++) {
+
+            if (mapParts[elem].visible) {
+
+                txBitBlt(txDC(),
+                        mapParts[elem].coords.left,
+                        mapParts[elem].coords.top,
+                        60, 60,
+                        mapParts[elem].picture
+                );
+            }
+        }
 
         //block "block"
         if (In(txMousePos(), blockBut) && txMouseButtons() & 1) {
@@ -223,10 +256,16 @@ void mainFunc()
         if (txMouseButtons() & 1 && clickedBlock) {
             txBitBlt(txDC(), txMouseX() - 30, txMouseY() - 30, 60, 60, block);
 
-            if (!(txMouseButtons() & 1)) {
-                txBitBlt(txDC(), txMouseX() - 30, txMouseY() - 30, 60, 60, block);
-                clickedBlock = false;
-            }
+        }
+        if (!(txMouseButtons() & 1) && clickedBlock) {
+
+            mapParts[arrElem] = {
+                {
+                    txMouseX() - 30, txMouseY() - 30, txMouseX() + 30, txMouseY() + 30
+                },  true, block, BLOCK_TYPE
+            };
+            arrElem++;
+            clickedBlock = false;
         }
 
         //block "quest"
@@ -235,10 +274,35 @@ void mainFunc()
         }
         if (txMouseButtons() & 1 && clickedQuest) {
             txBitBlt(txDC(), txMouseX() - 30, txMouseY() - 30, 60, 60, quest);
+        }
+        if (!(txMouseButtons() & 1) && clickedQuest) {
 
-            if (!(txMouseButtons() & 1)) {
-                txBitBlt(txDC(), txMouseX() - 30, txMouseY() - 30, 60, 60, quest);
-                clickedQuest = false;
+            mapParts[arrElem] = {
+                {
+                    txMouseX() - 30, txMouseY() - 30, txMouseX() + 30, txMouseY() + 30
+                },  true, quest, QUEST_TYPE
+            };
+            arrElem++;
+
+            clickedQuest = false;
+        }
+
+        //button to complete LevelCreating
+        if (In(txMousePos(), doneBut) && txMouseButtons() & 1) {
+            while (txMouseButtons() & 1) {
+                txSleep(10);
+            }
+
+            ofstream lvlfile;
+            lvlfile.open("level1.fslvl");
+            for (int elem = 0; elem < 12; elem++) {
+                if (mapParts[elem].visible) {
+                    switch(mapParts[elem].blocktype)
+                    {
+                        case BLOCK_TYPE:
+                            lvlfile << "Block"
+                    }
+                }
             }
         }
 
