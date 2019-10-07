@@ -6,10 +6,13 @@ using namespace std;
 
 const COLORREF MY_LIGHTBLUE = RGB(75, 127, 196);
 const COLORREF MY_BISQUE    = RGB(255, 214, 89);
+
 const int      BLOCK_TYPE   = 0;
 const int      QUEST_TYPE   = 1;
 const int      WATER_TYPE   = 2;
 const int      FIRE_TYPE    = 3;
+
+const int      MAP_LENGHT   = 15;
 
 int middleX;
 int middleY;
@@ -34,6 +37,8 @@ struct MapPart {
 
 HDC block;
 HDC quest;
+HDC water;
+
 HDC orange_but;
 HDC green_but;
 HDC blue_but;
@@ -51,6 +56,7 @@ int main()
 
     block      = txLoadImage("pictures\\block.bmp");
     quest      = txLoadImage("pictures\\question.bmp");
+    water      = txLoadImage("pictures\\water.bmp");
     //orange_but = txLoadImage("pictures\\orange-but.bmp");
     //green_but  = txLoadImage("pictures\\green-but.bmp");
     //blue_but   = txLoadImage("pictures\\blue-but.bmp");
@@ -214,32 +220,43 @@ void mainFunc()
     int arrElem = 0;
 
     RECT blockBut = {
-        extentX - 60, 0,  extentX, 60
+        extentX - 60, 0,   extentX, 60
     };
 
     RECT questBut = {
-        extentX - 60, 60, extentX, 120
+        extentX - 60, 60,  extentX, 120
+    };
+
+    RECT waterBut = {
+        extentX - 60, 120, extentX, 180
     };
 
     RECT doneBut = {
         extentX - 60, extentY - 60, extentX, extentY
     };
 
-    MapPart mapParts[12];
-    for (int elem = 0; elem < 12; elem++) {
+    MapPart mapParts[MAP_LENGHT];
+
+    for (int elem = 0; elem < MAP_LENGHT; elem++) {
         mapParts[elem].visible = false;
     }
 
     bool clickedBlock = false;
     bool clickedQuest = false;
+    bool clickedWater = false;
+    bool clickedFire  = false;
 
     while (!GetAsyncKeyState('Q')) {
         background(TX_WHITE);
 
-        txBitBlt(txDC(), extentX - 60, 0,  60, 60, block);
-        txBitBlt(txDC(), extentX - 60, 60, 60, 60, quest);
+        txBitBlt(txDC(), blockBut.left, blockBut.top, 60, 60, block);
+        txBitBlt(txDC(), questBut.left, questBut.top, 60, 60, quest);
+        txBitBlt(txDC(), waterBut.left, waterBut.top, 60, 60, water);
 
-        for (int elem = 0; elem < 12; elem++) {
+        for (int elem = 0; elem < MAP_LENGHT; elem++) {
+
+            mapParts[elem].coords.left = round((mapParts[elem].coords.left + 30) / 60) * 60;
+            mapParts[elem].coords.top  = round((mapParts[elem].coords.top  + 30) / 60) * 60;
 
             if (mapParts[elem].visible) {
 
@@ -262,11 +279,18 @@ void mainFunc()
         }
         if (!(txMouseButtons() & 1) && clickedBlock) {
 
-            mapParts[arrElem] = {
-                {
-                    txMouseX() - 30, txMouseY() - 30, txMouseX() + 30, txMouseY() + 30
-                },  true, block, BLOCK_TYPE
-            };
+            if (arrElem <= MAP_LENGHT) {
+                mapParts[arrElem] = {
+                    {
+                        txMouseX() - 30, txMouseY() - 30, txMouseX() + 30, txMouseY() + 30
+                    },  true, block, BLOCK_TYPE
+                };
+            }
+            else {
+                //нужен sprintf
+                //txMessageBox("You cannot add more than " + (char)MAP_LENGHT + "blocks", "Error");
+            }
+
             arrElem++;
             clickedBlock = false;
         }
@@ -290,6 +314,25 @@ void mainFunc()
             clickedQuest = false;
         }
 
+        //block "water"
+        if (In(txMousePos(), waterBut) && txMouseButtons() & 1) {
+            clickedWater = true;
+        }
+        if (txMouseButtons() & 1 && clickedWater) {
+            txBitBlt(txDC(), txMouseX() - 30, txMouseY() - 30, 60, 60, water);
+        }
+        if (!(txMouseButtons() & 1) && clickedWater) {
+
+            mapParts[arrElem] = {
+                {
+                    txMouseX() - 30, txMouseY() - 30, txMouseX() + 30, txMouseY() + 30
+                },  true, water, WATER_TYPE
+            };
+            arrElem++;
+
+            clickedWater = false;
+        }
+
         //button to complete LevelCreating
         if (In(txMousePos(), doneBut) && txMouseButtons() & 1) {
             while (txMouseButtons() & 1) {
@@ -303,8 +346,17 @@ void mainFunc()
                     switch(mapParts[elem].blocktype)
                     {
                         case BLOCK_TYPE:
-                            lvlfile << "Block";
+                             lvlfile << "Block";
+                        case QUEST_TYPE:
+                             lvlfile << "Quest";
                     }
+
+                    lvlfile << mapParts[elem].coords.left;
+                    lvlfile << mapParts[elem].coords.top;
+                    lvlfile << mapParts[elem].coords.right;
+                    lvlfile << mapParts[elem].coords.bottom;
+
+                    lvlfile << "";
                 }
             }
         }
