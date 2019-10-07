@@ -51,10 +51,10 @@ int main()
 
     block      = txLoadImage("pictures\\block.bmp");
     quest      = txLoadImage("pictures\\question.bmp");
-    orange_but = txLoadImage("pictures\\orange_but.bmp");
-    green_but  = txLoadImage("pictures\\green_but.bmp");
-    blue_but   = txLoadImage("pictures\\blue_but.bmp");
-    purple_but = txLoadImage("pictures\\purple_but.bmp");
+    //orange_but = txLoadImage("pictures\\orange-but.bmp");
+    //green_but  = txLoadImage("pictures\\green-but.bmp");
+    //blue_but   = txLoadImage("pictures\\blue-but.bmp");
+    //purple_but = txLoadImage("pictures\\purple-but.bmp");
 
     middleX = txGetExtentX() / 2;
     middleY = txGetExtentY() / 2;
@@ -226,6 +226,9 @@ void mainFunc()
     };
 
     MapPart mapParts[12];
+    for (int elem = 0; elem < 12; elem++) {
+        mapParts[elem].visible = false;
+    }
 
     bool clickedBlock = false;
     bool clickedQuest = false;
@@ -300,7 +303,7 @@ void mainFunc()
                     switch(mapParts[elem].blocktype)
                     {
                         case BLOCK_TYPE:
-                            lvlfile << "Block"
+                            lvlfile << "Block";
                     }
                 }
             }
