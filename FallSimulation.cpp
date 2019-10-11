@@ -12,7 +12,7 @@ const int      QUEST_TYPE   = 1;
 const int      WATER_TYPE   = 2;
 const int      FIRE_TYPE    = 3;
 
-const int      MAP_LENGHT   = 15;
+const int      MAP_LENGHT   = 5;
 
 int middleX;
 int middleY;
@@ -92,6 +92,8 @@ int main()
 
     txDeleteDC(block);
     txDeleteDC(quest);
+    txDeleteDC(water);
+    //txDeleteDC(fire);
 
     txDisableAutoPause();
 }
@@ -218,24 +220,27 @@ void mainFunc()
     gameIsStarted = true;
 
     int arrElem = 0;
+    const int BLOCK_SIZE = 120;
 
     RECT blockBut = {
-        extentX - 60, 0,   extentX, 60
+        extentX - BLOCK_SIZE,     0,          extentX, BLOCK_SIZE
     };
 
     RECT questBut = {
-        extentX - 60, 60,  extentX, 120
+        extentX - BLOCK_SIZE,     BLOCK_SIZE, extentX, 2 * BLOCK_SIZE
     };
 
     RECT waterBut = {
-        extentX - 60, 120, extentX, 180
+        extentX - BLOCK_SIZE, 2 * BLOCK_SIZE, extentX, 3 * BLOCK_SIZE
     };
 
     RECT doneBut = {
         extentX - 60, extentY - 60, extentX, extentY
     };
 
-    MapPart mapParts[MAP_LENGHT];
+    MapPart mapParts[MAP_LENGHT + 1];
+
+    Button completeButton = {doneBut, "Done"};
 
     for (int elem = 0; elem < MAP_LENGHT; elem++) {
         mapParts[elem].visible = false;
@@ -249,9 +254,16 @@ void mainFunc()
     while (!GetAsyncKeyState('Q')) {
         background(TX_WHITE);
 
-        txBitBlt(txDC(), blockBut.left, blockBut.top, 60, 60, block);
-        txBitBlt(txDC(), questBut.left, questBut.top, 60, 60, quest);
-        txBitBlt(txDC(), waterBut.left, waterBut.top, 60, 60, water);
+        Win32::TransparentBlt(txDC(), blockBut.left, blockBut.top, 120, 120, block,
+                              0, 0, 60, 60, -1);
+
+        Win32::TransparentBlt(txDC(), questBut.left, questBut.top, 120, 120, quest,
+                              0, 0, 60, 60, -1);
+
+        Win32::TransparentBlt(txDC(), waterBut.left, waterBut.top, 120, 120, water,
+                              0, 0, 60, 60, -1);
+
+        drawButton(completeButton, false);
 
         for (int elem = 0; elem < MAP_LENGHT; elem++) {
 
@@ -279,19 +291,22 @@ void mainFunc()
         }
         if (!(txMouseButtons() & 1) && clickedBlock) {
 
-            if (arrElem <= MAP_LENGHT) {
+            if (arrElem < MAP_LENGHT) {
                 mapParts[arrElem] = {
                     {
                         txMouseX() - 30, txMouseY() - 30, txMouseX() + 30, txMouseY() + 30
                     },  true, block, BLOCK_TYPE
                 };
+                arrElem++;
             }
             else {
-                //нужен sprintf
-                //txMessageBox("You cannot add more than " + (char)MAP_LENGHT + "blocks", "Error");
+                char maplen_str[50];
+                sprintf(maplen_str, "You cannot add more than %d blocks", MAP_LENGHT);
+                txMessageBox(maplen_str, "Error");
+                arrElem--;
             }
 
-            arrElem++;
+            //arrElem++;
             clickedBlock = false;
         }
 
@@ -304,12 +319,20 @@ void mainFunc()
         }
         if (!(txMouseButtons() & 1) && clickedQuest) {
 
-            mapParts[arrElem] = {
-                {
-                    txMouseX() - 30, txMouseY() - 30, txMouseX() + 30, txMouseY() + 30
-                },  true, quest, QUEST_TYPE
-            };
-            arrElem++;
+            if (arrElem < MAP_LENGHT) {
+                mapParts[arrElem] = {
+                    {
+                        txMouseX() - 30, txMouseY() - 30, txMouseX() + 30, txMouseY() + 30
+                    },  true, quest, QUEST_TYPE
+                };
+                arrElem++;
+            }
+            else {
+                char maplen_str[50];
+                sprintf(maplen_str, "You cannot add more than %d blocks", MAP_LENGHT);
+                txMessageBox(maplen_str, "Error");
+                arrElem--;
+            }
 
             clickedQuest = false;
         }
@@ -323,12 +346,20 @@ void mainFunc()
         }
         if (!(txMouseButtons() & 1) && clickedWater) {
 
-            mapParts[arrElem] = {
-                {
-                    txMouseX() - 30, txMouseY() - 30, txMouseX() + 30, txMouseY() + 30
-                },  true, water, WATER_TYPE
-            };
-            arrElem++;
+            if (arrElem < MAP_LENGHT) {
+                mapParts[arrElem] = {
+                    {
+                        txMouseX() - 30, txMouseY() - 30, txMouseX() + 30, txMouseY() + 30
+                    },  true, water, WATER_TYPE
+                };
+                arrElem++;
+            }
+            else {
+                char maplen_str[50];
+                sprintf(maplen_str, "You cannot add more than %d blocks", MAP_LENGHT);
+                txMessageBox(maplen_str, "Error");
+                arrElem--;
+            }
 
             clickedWater = false;
         }
@@ -341,20 +372,29 @@ void mainFunc()
 
             ofstream lvlfile;
             lvlfile.open("level1.fslvl");
-            for (int elem = 0; elem < 12; elem++) {
+            for (int elem = 0; elem < arrElem; elem++) {
                 if (mapParts[elem].visible) {
                     switch(mapParts[elem].blocktype)
                     {
                         case BLOCK_TYPE:
-                             lvlfile << "Block";
+                             lvlfile << "Block,";
+                             break;
                         case QUEST_TYPE:
-                             lvlfile << "Quest";
+                             lvlfile << "Quest,";
+                             break;
+                        case WATER_TYPE:
+                             lvlfile << "Water,";
+                             break;
                     }
 
                     lvlfile << mapParts[elem].coords.left;
+                    lvlfile << ",";
                     lvlfile << mapParts[elem].coords.top;
+                    lvlfile << ",";
                     lvlfile << mapParts[elem].coords.right;
+                    lvlfile << ",";
                     lvlfile << mapParts[elem].coords.bottom;
+                    lvlfile << "\n";
 
                     lvlfile << "";
                 }
