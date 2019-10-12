@@ -38,6 +38,7 @@ struct MapPart {
 HDC block;
 HDC quest;
 HDC water;
+HDC fire;
 
 HDC orange_but;
 HDC green_but;
@@ -57,6 +58,7 @@ int main()
     block      = txLoadImage("pictures\\block.bmp");
     quest      = txLoadImage("pictures\\question.bmp");
     water      = txLoadImage("pictures\\water.bmp");
+    fire       = txLoadImage("pictures\\fire.bmp");
     //orange_but = txLoadImage("pictures\\orange-but.bmp");
     //green_but  = txLoadImage("pictures\\green-but.bmp");
     //blue_but   = txLoadImage("pictures\\blue-but.bmp");
@@ -93,7 +95,7 @@ int main()
     txDeleteDC(block);
     txDeleteDC(quest);
     txDeleteDC(water);
-    //txDeleteDC(fire);
+    txDeleteDC(fire);
 
     txDisableAutoPause();
 }
@@ -233,10 +235,16 @@ void mainFunc()
     RECT waterBut = {
         extentX - BLOCK_SIZE, 2 * BLOCK_SIZE, extentX, 3 * BLOCK_SIZE
     };
+    RECT fireBut = {
+        extentX - BLOCK_SIZE, 3*  BLOCK_SIZE, extentX, 4 * BLOCK_SIZE
+    };
+
+
 
     RECT doneBut = {
         extentX - 60, extentY - 60, extentX, extentY
     };
+
 
     MapPart mapParts[MAP_LENGHT + 1];
 
@@ -249,7 +257,7 @@ void mainFunc()
     bool clickedBlock = false;
     bool clickedQuest = false;
     bool clickedWater = false;
-    bool clickedFire  = false;
+    bool clickedfire  = false;
 
     while (!GetAsyncKeyState('Q')) {
         background(TX_WHITE);
@@ -261,6 +269,8 @@ void mainFunc()
                               0, 0, 60, 60, -1);
 
         Win32::TransparentBlt(txDC(), waterBut.left, waterBut.top, 120, 120, water,
+                              0, 0, 60, 60, -1);
+        Win32::TransparentBlt(txDC(), fireBut.left, fireBut.top, 120, 120, fire,
                               0, 0, 60, 60, -1);
 
         drawButton(completeButton, false);
@@ -364,6 +374,33 @@ void mainFunc()
             clickedWater = false;
         }
 
+        //block "fire"
+           if (In(txMousePos(), fireBut) && txMouseButtons() & 1) {
+            clickedfire = true;
+        }
+        if (txMouseButtons() & 1 && clickedfire) {
+            txBitBlt(txDC(), txMouseX() - 30, txMouseY() - 30, 60, 60, fire);
+        }
+        if (!(txMouseButtons() & 1) && clickedfire) {
+
+            if (arrElem < MAP_LENGHT) {
+                mapParts[arrElem] = {
+                    {
+                        txMouseX() - 30, txMouseY() - 30, txMouseX() + 30, txMouseY() + 30
+                    },  true, fire, FIRE_TYPE
+                };
+                arrElem++;
+            }
+            else {
+                char maplen_str[50];
+                sprintf(maplen_str, "You cannot add more than %d blocks", MAP_LENGHT);
+                txMessageBox(maplen_str, "Error");
+                arrElem--;
+            }
+
+            clickedfire = false;
+        }
+
         //button to complete LevelCreating
         if (In(txMousePos(), doneBut) && txMouseButtons() & 1) {
             while (txMouseButtons() & 1) {
@@ -385,6 +422,9 @@ void mainFunc()
                         case WATER_TYPE:
                              lvlfile << "Water,";
                              break;
+                        case FIRE_TYPE:
+                             lvlfile << "Fire,";
+                             break;
                     }
 
                     lvlfile << mapParts[elem].coords.left;
@@ -404,4 +444,5 @@ void mainFunc()
         txSleep(10);
     }
 }
+
 
