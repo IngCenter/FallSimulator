@@ -50,6 +50,8 @@ void drawMenu();
 void drawButton(Button but, bool picture);
 void loadingAnimation(int delay, int speed);
 void mainFunc();
+bool checkClickBlock(RECT blockBut, bool clickedBlock);
+void drawBlock(bool clickedfire , HDC fire   );
 
 int main()
 {
@@ -122,7 +124,26 @@ void drawButton(Button but, bool picture)
                 but.text);
 }
 
+
+bool checkClickBlock(RECT blockBut, bool clickedBlock)
+{
+    if (In(txMousePos(), blockBut) && txMouseButtons() & 1) {
+        clickedBlock = true;
+    }
+
+    return clickedBlock;
+}
+
+void drawBlock(bool clickedfire, HDC fire)
+{
+    if (txMouseButtons() & 1 && clickedfire) {
+        txBitBlt(txDC(), txMouseX() - 30, txMouseY() - 30, 60, 60, fire);
+    }
+}
+
+
 void drawMenu()
+
 {
     //button "Play"
     Button buttonPlay = {
@@ -292,13 +313,8 @@ void mainFunc()
         }
 
         //block "block"
-        if (In(txMousePos(), blockBut) && txMouseButtons() & 1) {
-            clickedBlock = true;
-        }
-        if (txMouseButtons() & 1 && clickedBlock) {
-            txBitBlt(txDC(), txMouseX() - 30, txMouseY() - 30, 60, 60, block);
-
-        }
+        clickedBlock = checkClickBlock(blockBut, clickedBlock);
+        drawBlock(clickedBlock, block);
         if (!(txMouseButtons() & 1) && clickedBlock) {
 
             if (arrElem < MAP_LENGHT) {
@@ -321,12 +337,8 @@ void mainFunc()
         }
 
         //block "quest"
-        if (In(txMousePos(), questBut) && txMouseButtons() & 1) {
-            clickedQuest = true;
-        }
-        if (txMouseButtons() & 1 && clickedQuest) {
-            txBitBlt(txDC(), txMouseX() - 30, txMouseY() - 30, 60, 60, quest);
-        }
+        clickedQuest = checkClickBlock(questBut, clickedQuest);
+        drawBlock (clickedQuest, quest);
         if (!(txMouseButtons() & 1) && clickedQuest) {
 
             if (arrElem < MAP_LENGHT) {
@@ -348,12 +360,8 @@ void mainFunc()
         }
 
         //block "water"
-        if (In(txMousePos(), waterBut) && txMouseButtons() & 1) {
-            clickedWater = true;
-        }
-        if (txMouseButtons() & 1 && clickedWater) {
-            txBitBlt(txDC(), txMouseX() - 30, txMouseY() - 30, 60, 60, water);
-        }
+        clickedWater = checkClickBlock(waterBut,clickedWater);
+        drawBlock (clickedWater,water);
         if (!(txMouseButtons() & 1) && clickedWater) {
 
             if (arrElem < MAP_LENGHT) {
@@ -375,12 +383,8 @@ void mainFunc()
         }
 
         //block "fire"
-           if (In(txMousePos(), fireBut) && txMouseButtons() & 1) {
-            clickedfire = true;
-        }
-        if (txMouseButtons() & 1 && clickedfire) {
-            txBitBlt(txDC(), txMouseX() - 30, txMouseY() - 30, 60, 60, fire);
-        }
+        clickedfire = checkClickBlock (fireBut ,clickedfire);
+        drawBlock (clickedfire ,fire);
         if (!(txMouseButtons() & 1) && clickedfire) {
 
             if (arrElem < MAP_LENGHT) {
