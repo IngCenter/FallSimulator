@@ -238,6 +238,49 @@ void loadingAnimation(int delay, int speed)
     background(TX_WHITE);
 }
 
+void drawPictures (int MAP_LENGHT, MapPart mapParts[])
+{
+
+    for (int elem = 0; elem < MAP_LENGHT; elem++) //i = elem
+
+        {
+            mapParts[elem].coords.left = round((mapParts[elem].coords.left + 30) / 60) * 60;
+            mapParts[elem].coords.top  = round((mapParts[elem].coords.top  + 30) / 60) * 60;
+
+            if (mapParts[elem].visible)
+            {
+
+                txBitBlt(txDC(), mapParts[elem].coords.left, mapParts[elem].coords.top, 60, 60, mapParts[elem].picture);
+            }
+        }
+}
+
+int moveBlock (int MAP_LENGHT, int BLOCK_TYPE, MapPart mapParts[], int arrElem, HDC block)
+{
+    if (arrElem < MAP_LENGHT)
+    {
+        mapParts[arrElem] =
+        {
+            {
+                txMouseX() - 30, txMouseY() - 30, txMouseX() + 30, txMouseY() + 30
+            },
+        true, block, BLOCK_TYPE
+
+        };
+        arrElem++;
+    }
+    else {
+        char maplen_str[50];
+        sprintf(maplen_str, "You cannot add more than %d blocks", MAP_LENGHT);
+        txMessageBox(maplen_str, "Error");
+        arrElem--;
+    }
+
+
+    return arrElem;
+}
+
+
 void mainFunc()
 {
     gameIsStarted = true;
@@ -256,11 +299,10 @@ void mainFunc()
     RECT waterBut = {
         extentX - BLOCK_SIZE, 2 * BLOCK_SIZE, extentX, 3 * BLOCK_SIZE
     };
+
     RECT fireBut = {
         extentX - BLOCK_SIZE, 3*  BLOCK_SIZE, extentX, 4 * BLOCK_SIZE
     };
-
-
 
     RECT doneBut = {
         extentX - 60, extentY - 60, extentX, extentY
@@ -295,67 +337,22 @@ void mainFunc()
                               0, 0, 60, 60, -1);
 
         drawButton(completeButton, false);
-
-        for (int elem = 0; elem < MAP_LENGHT; elem++) {
-
-            mapParts[elem].coords.left = round((mapParts[elem].coords.left + 30) / 60) * 60;
-            mapParts[elem].coords.top  = round((mapParts[elem].coords.top  + 30) / 60) * 60;
-
-            if (mapParts[elem].visible) {
-
-                txBitBlt(txDC(),
-                        mapParts[elem].coords.left,
-                        mapParts[elem].coords.top,
-                        60, 60,
-                        mapParts[elem].picture
-                );
-            }
-        }
+        drawPictures (MAP_LENGHT, mapParts);
 
         //block "block"
         clickedBlock = checkClickBlock(blockBut, clickedBlock);
         drawBlock(clickedBlock, block);
         if (!(txMouseButtons() & 1) && clickedBlock) {
-
-            if (arrElem < MAP_LENGHT) {
-                mapParts[arrElem] = {
-                    {
-                        txMouseX() - 30, txMouseY() - 30, txMouseX() + 30, txMouseY() + 30
-                    },  true, block, BLOCK_TYPE
-                };
-                arrElem++;
-            }
-            else {
-                char maplen_str[50];
-                sprintf(maplen_str, "You cannot add more than %d blocks", MAP_LENGHT);
-                txMessageBox(maplen_str, "Error");
-                arrElem--;
-            }
-
-            //arrElem++;
+            arrElem = moveBlock (MAP_LENGHT,BLOCK_TYPE, mapParts, arrElem, block);
             clickedBlock = false;
         }
 
         //block "quest"
         clickedQuest = checkClickBlock(questBut, clickedQuest);
         drawBlock (clickedQuest, quest);
-        if (!(txMouseButtons() & 1) && clickedQuest) {
-
-            if (arrElem < MAP_LENGHT) {
-                mapParts[arrElem] = {
-                    {
-                        txMouseX() - 30, txMouseY() - 30, txMouseX() + 30, txMouseY() + 30
-                    },  true, quest, QUEST_TYPE
-                };
-                arrElem++;
-            }
-            else {
-                char maplen_str[50];
-                sprintf(maplen_str, "You cannot add more than %d blocks", MAP_LENGHT);
-                txMessageBox(maplen_str, "Error");
-                arrElem--;
-            }
-
+        if (!(txMouseButtons() & 1) && clickedQuest)
+        {
+            arrElem = moveBlock (MAP_LENGHT, QUEST_TYPE, mapParts, arrElem, quest);
             clickedQuest = false;
         }
 
@@ -363,22 +360,7 @@ void mainFunc()
         clickedWater = checkClickBlock(waterBut,clickedWater);
         drawBlock (clickedWater,water);
         if (!(txMouseButtons() & 1) && clickedWater) {
-
-            if (arrElem < MAP_LENGHT) {
-                mapParts[arrElem] = {
-                    {
-                        txMouseX() - 30, txMouseY() - 30, txMouseX() + 30, txMouseY() + 30
-                    },  true, water, WATER_TYPE
-                };
-                arrElem++;
-            }
-            else {
-                char maplen_str[50];
-                sprintf(maplen_str, "You cannot add more than %d blocks", MAP_LENGHT);
-                txMessageBox(maplen_str, "Error");
-                arrElem--;
-            }
-
+            arrElem = moveBlock (MAP_LENGHT, WATER_TYPE, mapParts, arrElem, water);
             clickedWater = false;
         }
 
@@ -386,6 +368,7 @@ void mainFunc()
         clickedfire = checkClickBlock (fireBut ,clickedfire);
         drawBlock (clickedfire ,fire);
         if (!(txMouseButtons() & 1) && clickedfire) {
+            arrElem = moveBlock (MAP_LENGHT, FIRE_TYPE, mapParts, arrElem, fire);
 
             if (arrElem < MAP_LENGHT) {
                 mapParts[arrElem] = {
@@ -406,7 +389,8 @@ void mainFunc()
         }
 
         //button to complete LevelCreating
-        if (In(txMousePos(), doneBut) && txMouseButtons() & 1) {
+        if (In(txMousePos(), doneBut) && txMouseButtons() & 1)
+        {
             while (txMouseButtons() & 1) {
                 txSleep(10);
             }
@@ -446,7 +430,7 @@ void mainFunc()
         }
 
         txSleep(10);
-    }
+        }
 }
 
 
