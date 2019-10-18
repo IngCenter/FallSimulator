@@ -50,8 +50,6 @@ void drawMenu();
 void drawButton(Button but, bool picture);
 void loadingAnimation(int delay, int speed);
 void mainFunc();
-bool checkClickBlock(RECT blockBut, bool clickedBlock);
-void drawBlock(bool clickedfire , HDC fire   );
 
 int main()
 {
@@ -124,26 +122,7 @@ void drawButton(Button but, bool picture)
                 but.text);
 }
 
-
-bool checkClickBlock(RECT blockBut, bool clickedBlock)
-{
-    if (In(txMousePos(), blockBut) && txMouseButtons() & 1) {
-        clickedBlock = true;
-    }
-
-    return clickedBlock;
-}
-
-void drawBlock(bool clickedfire, HDC fire)
-{
-    if (txMouseButtons() & 1 && clickedfire) {
-        txBitBlt(txDC(), txMouseX() - 30, txMouseY() - 30, 60, 60, fire);
-    }
-}
-
-
 void drawMenu()
-
 {
     //button "Play"
     Button buttonPlay = {
@@ -238,58 +217,16 @@ void loadingAnimation(int delay, int speed)
     background(TX_WHITE);
 }
 
-void drawPictures (int MAP_LENGHT, MapPart mapParts[])
-{
-
-    for (int elem = 0; elem < MAP_LENGHT; elem++) //i = elem
-
-        {
-            mapParts[elem].coords.left = round((mapParts[elem].coords.left + 30) / 60) * 60;
-            mapParts[elem].coords.top  = round((mapParts[elem].coords.top  + 30) / 60) * 60;
-
-            if (mapParts[elem].visible)
-            {
-
-                txBitBlt(txDC(), mapParts[elem].coords.left, mapParts[elem].coords.top, 60, 60, mapParts[elem].picture);
-            }
-        }
-}
-
-int moveBlock (int MAP_LENGHT, int BLOCK_TYPE, MapPart mapParts[], int arrElem, HDC block)
-{
-    if (arrElem < MAP_LENGHT)
-    {
-        mapParts[arrElem] =
-        {
-            {
-                txMouseX() - 30, txMouseY() - 30, txMouseX() + 30, txMouseY() + 30
-            },
-        true, block, BLOCK_TYPE
-
-        };
-        arrElem++;
-    }
-    else {
-        char maplen_str[50];
-        sprintf(maplen_str, "You cannot add more than %d blocks", MAP_LENGHT);
-        txMessageBox(maplen_str, "Error");
-        arrElem--;
-    }
-
-
-    return arrElem;
-}
-
-
 void mainFunc()
 {
     gameIsStarted = true;
 
     int arrElem = 0;
+    int selectedPict = -1;
     const int BLOCK_SIZE = 120;
 
     RECT blockBut = {
-        extentX - BLOCK_SIZE,     0,          extentX, BLOCK_SIZE
+        extentX - BLOCK_SIZE,     0,          extentX,     BLOCK_SIZE
     };
 
     RECT questBut = {
@@ -308,7 +245,6 @@ void mainFunc()
         extentX - 60, extentY - 60, extentX, extentY
     };
 
-
     MapPart mapParts[MAP_LENGHT + 1];
 
     Button completeButton = {doneBut, "Done"};
@@ -320,7 +256,7 @@ void mainFunc()
     bool clickedBlock = false;
     bool clickedQuest = false;
     bool clickedWater = false;
-    bool clickedfire  = false;
+    bool clickedFire  = false;
 
     while (!GetAsyncKeyState('Q')) {
         background(TX_WHITE);
@@ -333,42 +269,118 @@ void mainFunc()
 
         Win32::TransparentBlt(txDC(), waterBut.left, waterBut.top, 120, 120, water,
                               0, 0, 60, 60, -1);
-        Win32::TransparentBlt(txDC(), fireBut.left, fireBut.top, 120, 120, fire,
+        Win32::TransparentBlt(txDC(), fireBut.left,  fireBut.top, 120, 120, fire,
                               0, 0, 60, 60, -1);
 
         drawButton(completeButton, false);
-        drawPictures (MAP_LENGHT, mapParts);
+
+        for (int elem = 0; elem < MAP_LENGHT; elem++) {
+
+            mapParts[elem].coords.left = round((mapParts[elem].coords.left + 30) / 60) * 60;
+            mapParts[elem].coords.top  = round((mapParts[elem].coords.top  + 30) / 60) * 60;
+
+            if (mapParts[elem].visible) {
+
+                txBitBlt(txDC(),
+                        mapParts[elem].coords.left,
+                        mapParts[elem].coords.top,
+                        60, 60,
+                        mapParts[elem].picture
+                );
+            }
+        }
 
         //block "block"
-        clickedBlock = checkClickBlock(blockBut, clickedBlock);
-        drawBlock(clickedBlock, block);
+        if (In(txMousePos(), blockBut) && txMouseButtons() & 1) {
+            clickedBlock = true;
+        }
+        if (txMouseButtons() & 1 && clickedBlock) {
+            txBitBlt(txDC(), txMouseX() - 30, txMouseY() - 30, 60, 60, block);
+
+        }
         if (!(txMouseButtons() & 1) && clickedBlock) {
-            arrElem = moveBlock (MAP_LENGHT,BLOCK_TYPE, mapParts, arrElem, block);
+
+            if (arrElem < MAP_LENGHT) {
+                mapParts[arrElem] = {
+                    {
+                        txMouseX() - 30, txMouseY() - 30, txMouseX() + 30, txMouseY() + 30
+                    },  true, block, BLOCK_TYPE
+                };
+                arrElem++;
+            }
+            else {
+                char maplen_str[50];
+                sprintf(maplen_str, "You cannot add more than %d blocks", MAP_LENGHT);
+                txMessageBox(maplen_str, "Error");
+                arrElem--;
+            }
+
+            //arrElem++;
             clickedBlock = false;
         }
 
         //block "quest"
-        clickedQuest = checkClickBlock(questBut, clickedQuest);
-        drawBlock (clickedQuest, quest);
-        if (!(txMouseButtons() & 1) && clickedQuest)
-        {
-            arrElem = moveBlock (MAP_LENGHT, QUEST_TYPE, mapParts, arrElem, quest);
+        if (In(txMousePos(), questBut) && txMouseButtons() & 1) {
+            clickedQuest = true;
+        }
+        if (txMouseButtons() & 1 && clickedQuest) {
+            txBitBlt(txDC(), txMouseX() - 30, txMouseY() - 30, 60, 60, quest);
+        }
+        if (!(txMouseButtons() & 1) && clickedQuest) {
+
+            if (arrElem < MAP_LENGHT) {
+                mapParts[arrElem] = {
+                    {
+                        txMouseX() - 30, txMouseY() - 30, txMouseX() + 30, txMouseY() + 30
+                    },  true, quest, QUEST_TYPE
+                };
+                arrElem++;
+            }
+            else {
+                char maplen_str[50];
+                sprintf(maplen_str, "You cannot add more than %d blocks", MAP_LENGHT);
+                txMessageBox(maplen_str, "Error");
+                arrElem--;
+            }
+
             clickedQuest = false;
         }
 
         //block "water"
-        clickedWater = checkClickBlock(waterBut,clickedWater);
-        drawBlock (clickedWater,water);
+        if (In(txMousePos(), waterBut) && txMouseButtons() & 1) {
+            clickedWater = true;
+        }
+        if (txMouseButtons() & 1 && clickedWater) {
+            txBitBlt(txDC(), txMouseX() - 30, txMouseY() - 30, 60, 60, water);
+        }
         if (!(txMouseButtons() & 1) && clickedWater) {
-            arrElem = moveBlock (MAP_LENGHT, WATER_TYPE, mapParts, arrElem, water);
+
+            if (arrElem < MAP_LENGHT) {
+                mapParts[arrElem] = {
+                    {
+                        txMouseX() - 30, txMouseY() - 30, txMouseX() + 30, txMouseY() + 30
+                    },  true, water, WATER_TYPE
+                };
+                arrElem++;
+            }
+            else {
+                char maplen_str[50];
+                sprintf(maplen_str, "You cannot add more than %d blocks", MAP_LENGHT);
+                txMessageBox(maplen_str, "Error");
+                arrElem--;
+            }
+
             clickedWater = false;
         }
 
         //block "fire"
-        clickedfire = checkClickBlock (fireBut ,clickedfire);
-        drawBlock (clickedfire ,fire);
-        if (!(txMouseButtons() & 1) && clickedfire) {
-            arrElem = moveBlock (MAP_LENGHT, FIRE_TYPE, mapParts, arrElem, fire);
+        if (In(txMousePos(), fireBut) && txMouseButtons() & 1) {
+            clickedFire = true;
+        }
+        if (txMouseButtons() & 1 && clickedFire) {
+            txBitBlt(txDC(), txMouseX() - 30, txMouseY() - 30, 60, 60, fire);
+        }
+        if (!(txMouseButtons() & 1) && clickedFire) {
 
             if (arrElem < MAP_LENGHT) {
                 mapParts[arrElem] = {
@@ -385,12 +397,45 @@ void mainFunc()
                 arrElem--;
             }
 
-            clickedfire = false;
+            clickedFire = false;
+        }
+
+        //selecting block
+        for (int i = 0; i < arrElem; i++) {
+            if (selectedPict < 0 &&
+                In(txMousePos(), mapParts[i].coords) && txMouseButtons() & 1 &&
+                !(clickedBlock || clickedQuest || clickedWater || clickedFire)) {
+
+                selectedPict = i;
+            }
+        }
+
+        //moving picture
+        if (selectedPict >= 0 && txMouseButtons() & 1) {
+
+            txBitBlt(txDC(), txMouseX() - 30, txMouseY() - 30,
+                     60, 60, mapParts[selectedPict].picture);
+
+
+            //selectedPict = -1;
+        }
+
+        if (selectedPict >= 0 && !(txMouseButtons() & 1)) {
+            mapParts[selectedPict].coords = {
+                txMouseX() - 30, txMouseY() - 30,
+                txMouseX() + 30, txMouseY() + 30
+            };
+            selectedPict = -1;
+        }
+
+        //deleting picture
+        if (selectedPict >= 0 && txMouseButtons() & 2) {
+            mapParts[selectedPict].visible = false;
+            selectedPict = -1;
         }
 
         //button to complete LevelCreating
-        if (In(txMousePos(), doneBut) && txMouseButtons() & 1)
-        {
+        if (In(txMousePos(), doneBut) && txMouseButtons() & 1) {
             while (txMouseButtons() & 1) {
                 txSleep(10);
             }
@@ -430,7 +475,7 @@ void mainFunc()
         }
 
         txSleep(10);
-        }
+    }
 }
 
 
