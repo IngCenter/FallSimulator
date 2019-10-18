@@ -232,6 +232,9 @@ void mainFunc()
     RECT questBut = {
         extentX - BLOCK_SIZE,     BLOCK_SIZE, extentX, 2 * BLOCK_SIZE
     };
+    RECT questBut = {
+        extentX - 2 * BLOCK_SIZE,     BLOCK_SIZE, extentX, 2 * BLOCK_SIZE
+    };
 
     RECT waterBut = {
         extentX - BLOCK_SIZE, 2 * BLOCK_SIZE, extentX, 3 * BLOCK_SIZE
@@ -412,12 +415,8 @@ void mainFunc()
 
         //moving picture
         if (selectedPict >= 0 && txMouseButtons() & 1) {
-
             txBitBlt(txDC(), txMouseX() - 30, txMouseY() - 30,
                      60, 60, mapParts[selectedPict].picture);
-
-
-            //selectedPict = -1;
         }
 
         if (selectedPict >= 0 && !(txMouseButtons() & 1)) {
