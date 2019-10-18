@@ -230,9 +230,6 @@ void mainFunc()
     };
 
     RECT questBut = {
-        extentX - BLOCK_SIZE,     BLOCK_SIZE, extentX, 2 * BLOCK_SIZE
-    };
-    RECT questBut = {
         extentX - 2 * BLOCK_SIZE,     BLOCK_SIZE, extentX, 2 * BLOCK_SIZE
     };
 
