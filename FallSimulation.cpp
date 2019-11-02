@@ -7,6 +7,8 @@ using namespace std;
 const COLORREF MY_LIGHTBLUE = RGB(75, 127, 196);
 const COLORREF MY_BISQUE    = RGB(255, 214, 89);
 
+const int      BLOCK_SIZE   = 120;
+
 const int      BLOCK_TYPE   = 0;
 const int      QUEST_TYPE   = 1;
 const int      WATER_TYPE   = 2;
@@ -40,6 +42,10 @@ HDC quest;
 HDC water;
 HDC fire;
 
+HDC light_stone;
+HDC dark_stone;
+HDC vdark_stone;
+
 HDC orange_but;
 HDC green_but;
 HDC blue_but;
@@ -57,10 +63,15 @@ int main()
 {
     txCreateWindow(1300, 600);
 
-    block      = txLoadImage("pictures\\block.bmp");
-    quest      = txLoadImage("pictures\\question.bmp");
-    water      = txLoadImage("pictures\\water.bmp");
-    fire       = txLoadImage("pictures\\fire.bmp");
+    block       = txLoadImage("pictures\\block.bmp");
+    quest       = txLoadImage("pictures\\question.bmp");
+    water       = txLoadImage("pictures\\water.bmp");
+    fire        = txLoadImage("pictures\\fire.bmp");
+
+    light_stone = txLoadImage("pictures\\stone_light.bmp");
+    dark_stone  = txLoadImage("pictures\\stone_dark.bmp");
+    vdark_stone = txLoadImage("pictures\\stone_vdark.bmp");
+
     //orange_but = txLoadImage("pictures\\orange-but.bmp");
     //green_but  = txLoadImage("pictures\\green-but.bmp");
     //blue_but   = txLoadImage("pictures\\blue-but.bmp");
@@ -98,6 +109,10 @@ int main()
     txDeleteDC(quest);
     txDeleteDC(water);
     txDeleteDC(fire);
+
+    txDeleteDC(light_stone);
+    txDeleteDC(dark_stone);
+    txDeleteDC(vdark_stone);
 
     txDisableAutoPause();
 }
@@ -396,6 +411,8 @@ void mainFunc()
                     lvlfile << "";
                 }
             }
+
+            txMessageBox("Level File created!", "Information");
         }
 
         txSleep(10);
@@ -416,17 +433,25 @@ bool addingBlock(bool clicked, RECT blockBut, HDC pic,
     if (!(txMouseButtons() & 1) && clicked) {
 
         if (*arrElem < MAP_LENGHT) {
-            mapParts[*arrElem] = {
-                {
-                    txMouseX() - 30, txMouseY() - 30, txMouseX() + 30, txMouseY() + 30
-                },  true, pic, blocktype
-            };
-            (*arrElem)++;
+
+            if (txMouseX() < txGetExtentX() - BLOCK_SIZE) {
+
+                mapParts[*arrElem] = {
+                    {
+                        txMouseX() - 30, txMouseY() - 30, txMouseX() + 30, txMouseY() + 30
+                    },  true, pic, blocktype
+                };
+
+                (*arrElem)++;
+            }
         }
         else {
+
             char maplen_str[50];
+
             sprintf(maplen_str, "You cannot add more than %d blocks", MAP_LENGHT);
             txMessageBox(maplen_str, "Error");
+
             (*arrElem)--;
         }
 
