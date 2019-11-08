@@ -59,6 +59,8 @@ void mainFunc();
 bool addingBlock(bool clicked, RECT blockBut, HDC pic,
                  int blocktype, int* arrElem, MapPart mapParts[]);
 
+void addingStone(int* arrElem, MapPart mapParts[]);
+
 int main()
 {
     txCreateWindow(1300, 600);
@@ -331,10 +333,6 @@ void mainFunc()
                 In(txMousePos(), mapParts[i].coords) && txMouseButtons() & 2 &&
                 !(clickedBlock || clickedQuest || clickedWater || clickedFire)) {
 
-                //cout << i;
-                //cout << arrElem;
-                //txSleep(1000);
-
                 selectedPict = i;
                 mapParts[selectedPict] = mapParts[arrElem - 1];
                 mapParts[arrElem - 1].visible = false;
@@ -459,6 +457,40 @@ bool addingBlock(bool clicked, RECT blockBut, HDC pic,
     }
 
     return clicked;
+}
+
+void addingStone(int quanOfElemsToRep, int nElemsToRep[], int* arrElem, MapPart mapParts[])
+{
+    HDC pict;
+    RECT coords;
+
+    switch(quanOfElemsToRep)
+    {
+        default:
+             return;
+
+        case 2:
+             pict = light_stone;
+
+        case 3:
+             pict = dark_stone;
+
+        case 4:
+             pict = vdark_stone;
+    }
+
+    coords = mapParts[nElemsToRep[0]].coords;
+
+    for (int i = 0; i < quanOfElemsToRep; i++) {
+
+        mapParts[nElemsToRep[i]] = mapParts[*arrElem - 1];
+        mapParts[*arrElem - 1].visible = false;
+        *arrElem--;
+    }
+
+    mapParts[nElemsToRep[0]] = {
+        coords, true, pict, BLOCK_TYPE
+    };
 }
 
 
