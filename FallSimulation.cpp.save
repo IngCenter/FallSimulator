@@ -205,19 +205,11 @@ void drawMenu()
                 MapPart gettedMapParts = readFile("level1.fslvl");
 
                 for (int i = 0; i < MAP_LENGHT; i++) {
-
+                
                     if (gettedMapParts.visible[i]) {
-
+                    
                         switch (gettedMapParts[i].blocktype)
                         {
-                            default:
-                                 txBitBlt(txDC(),
-                                     gettedMapParts[i].coords.left,
-                                     gettedMapParts[i].coords.top,
-                                     60, 60,
-                                     block
-                                 );
-
                             case BLOCK_TYPE:
                                  txBitBlt(txDC(),
                                      gettedMapParts[i].coords.left,
@@ -225,30 +217,8 @@ void drawMenu()
                                      60, 60,
                                      block
                                  );
-
                             case QUEST_TYPE:
-                                 txBitBlt(txDC(),
-                                     gettedMapParts[i].coords.left,
-                                     gettedMapParts[i].coords.top,
-                                     60, 60,
-                                     quest
-                                 );
-
-                            case WATER_TYPE:
-                                 txBitBlt(txDC(),
-                                     gettedMapParts[i].coords.left,
-                                     gettedMapParts[i].coords.top,
-                                     60, 60,
-                                     water
-                                 );
-
-                            case FIRE_TYPE:
-                                 txBitBlt(txDC(),
-                                     gettedMapParts[i].coords.left,
-                                     gettedMapParts[i].coords.top,
-                                     60, 60,
-                                     fire
-                                 );
+                            
                         }
                     }
                 }
