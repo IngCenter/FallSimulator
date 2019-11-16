@@ -42,6 +42,10 @@ HDC quest;
 HDC water;
 HDC fire;
 
+HDC light_stone;
+HDC dark_stone;
+HDC vdark_stone;
+
 void background(COLORREF color);
 void drawMenu();
 void drawButton(Button but, bool picture);
