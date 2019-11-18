@@ -48,14 +48,14 @@ HDC vdark_stone;
 
 void background(COLORREF color);
 void drawMenu();
-void drawButton(Button but, bool picture);
+void drawButton(Button but);
 void loadingAnimation(int delay, int speed);
 void mainFunc();
 bool addingBlock(bool clicked, RECT blockBut, HDC pic,
                  int blocktype, int* arrElem, MapPart mapParts[]);
 
 void addingStone(int* arrElem, MapPart mapParts[]);
-int findElem(int* arrElem, RECT expCoords);
+int  findElem(int* arrElem, RECT expCoords);
 
 int main()
 {
@@ -112,7 +112,7 @@ void background(COLORREF color)
     txClear();
 }
 
-void drawButton(Button but, bool picture)
+void drawButton(Button but)
 {
     //drawing button
     txRectangle(but.coords.left,
@@ -147,12 +147,12 @@ void drawMenu()
         },  "Exit"
     };
 
-    //button "Settings"
-    Button buttonSets = {
+    //button "Help"
+    Button buttonHelp = {
         {
             extentX - 100, 0,
             extentX     ,  50
-        }, "Settings"
+        }, "? Help"
     };
 
     //button "Play" (to play on created level)
@@ -166,15 +166,16 @@ void drawMenu()
     txSetColor(TX_BLACK, 3);
     txSetFillColor(TX_WHITE);
 
-    drawButton(buttonStart, true);
-    drawButton(buttonExit, true);
+    drawButton(buttonStart);
+    drawButton(buttonExit);
 
     txSetColor(TX_BLACK, 3);
     txSetFillColor(TX_TRANSPARENT);
 
-    drawButton(buttonSets, false);
+    drawButton(buttonHelp);
 
     txSleep(50);
+    bool flwindow = false;
 
     while (!GetAsyncKeyState('Q')) {
         if (!gameIsStarted) {
@@ -187,23 +188,41 @@ void drawMenu()
                 txSleep(50);
                 mainFunc();
             }
-            if (In(txMousePos(), buttonExit.coords) && txMouseButtons() & 1) {
+            if (In(txMousePos(), buttonExit.coords)  && txMouseButtons() & 1) {
                 while (txMouseButtons() & 1) {
                     txSleep(10);
                 }
 
                 break;
             }
-            if (In(txMousePos(), buttonSets.coords) && txMouseButtons() & 1) {
+
+            if (In(txMousePos(), buttonHelp.coords))
+            {
+                txSetColor(TX_BLACK);
+                txDrawText(buttonHelp.coords.left - 130,
+                            buttonHelp.coords.bottom + 10,
+                            txGetExtentX() - 10,
+                            buttonHelp.coords.bottom + 100,
+                            "This hyperlink will be\nopen in browser");
+            }
+            else
+            {
+                txSetColor(TX_WHITE);
+                txSetFillColor(TX_WHITE);
+                txRectangle(buttonHelp.coords.left - 130,
+                            buttonHelp.coords.bottom + 10,
+                            txGetExtentX() - 10,
+                            buttonHelp.coords.bottom + 100);
+            }
+
+            if (In(txMousePos(), buttonHelp.coords)  && txMouseButtons() & 1) {
                 while(txMouseButtons() & 1) {
                     txSleep(10);
                 }
 
-                txSetColor(TX_BLACK, 3);
-                txSetFillColor(MY_BISQUE);
-
-                txRectangle(middleX - 200, middleY - 100, middleX + 200, middleY + 100);
+                system("start help\\help.html");
             }
+            /*
             if (In(txMousePos(), buttonPlay.coords) && txMouseButtons() & 1) {
 
                 MapPart gettedMapParts = readFile("level1.fslvl");
@@ -257,6 +276,7 @@ void drawMenu()
                     }
                 }
             }
+            */
         }
 
         txSleep(10);
@@ -340,7 +360,7 @@ void mainFunc()
         Win32::TransparentBlt(txDC(), fireBut.left,  fireBut.top, 120, 120, fire,
                               0, 0, 60, 60, -1);
 
-        drawButton(completeButton, false);
+        drawButton(completeButton);
 
         for (int elem = 0; elem < MAP_LENGHT; elem++) {
 
