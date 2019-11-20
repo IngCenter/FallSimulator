@@ -1,0 +1,66 @@
+<html>
+	<head>
+		<meta charset = "UTF-8" />
+		<title>Help HTML File</title>
+		<link rel = "stylesheet" href = "css/style.css" />
+		<link rel = "shortcut_icon" href = "icon/help.ico" />
+	</head>
+	<body>
+		<script type = "text/javascript">
+			function openSpoiler() {
+				var checkbox = document.getElementById("checkboxSpoiler");
+				var spoiler  = document.getElementsByClass("box")[0];
+				if (checkbox.checked) {
+					checkbox.checked = false;
+					spoiler.display = "none";
+				}
+				else {
+					checkbox.checked = true;
+					spoiler.display = "block";
+				}
+			}
+		</script>
+		
+		<h1>Справка по приложению FallSimulation</h1>
+		<h2>
+			FallSimulation - редактор уровней для этой же игры. Выполнена в стиле Марио.
+			<br />
+			<span id = "opensource-text">OpenSource</span>
+		</h2>
+		<h3>
+			Разработчик: Чечкенёв Андрей Дмитриевич/DarkCat09
+			<br />
+			<a href = "https://github.com/ingcenter/fallsimulator">
+				Ссылка на Github
+			</a>
+		</h3>
+		<p>
+			После запуска приложения Вы увидите главное меню.
+			<br />
+			В нём есть кнопки:
+			<br />
+			<br />
+			<strong>Start</strong> для запуска редактора;
+			<br />
+			<br />
+			<strong>Exit</strong> для выхода из приложения
+			<br />
+			(выход также может быть произведён нажатием клавиши <span>Q</span> - Quit);
+			<br />
+			<br />
+			<strong>? Help</strong> для запуска данной справки;
+			<br />
+			<br />
+			и <strong>Play</strong> для проверки готового уровня.
+			
+			<div class = "spoiler" onclick = "openSpoiler()">
+				<input type = "checkbox" />
+					Скриншоты
+					<div class = "box">
+						<br />
+						Текст сообщения в спойлере
+					</div>
+			</div>
+		</p>
+	</body>
+</html>
