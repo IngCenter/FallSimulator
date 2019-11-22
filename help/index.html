@@ -2,21 +2,17 @@
 	<head>
 		<meta charset = "UTF-8" />
 		<title>Help HTML File</title>
-		<link rel = "stylesheet" href = "css/style.css" />
-		<link rel = "shortcut_icon" href = "icon/help.ico" />
+		<link rel = "stylesheet" href = "style.css" />
+		<link rel = "shortcut icon" href = "icon/help.png" />
 	</head>
 	<body>
 		<script type = "text/javascript">
 			function openSpoiler() {
-				var checkbox = document.getElementById("checkboxSpoiler");
-				var spoiler  = document.getElementsByClass("box")[0];
 				if (checkbox.checked) {
 					checkbox.checked = false;
-					spoiler.display = "none";
 				}
 				else {
 					checkbox.checked = true;
-					spoiler.display = "block";
 				}
 			}
 		</script>
@@ -25,7 +21,7 @@
 		<h2>
 			FallSimulation - редактор уровней для этой же игры. Выполнена в стиле Марио.
 			<br />
-			<span id = "opensource-text">OpenSource</span>
+			<span id = "opensource-text">Open Source</span>
 		</h2>
 		<h3>
 			Разработчик: Чечкенёв Андрей Дмитриевич/DarkCat09
