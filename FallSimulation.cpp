@@ -177,7 +177,7 @@ void drawMenu()
     txSleep(50);
     bool flwindow = false;
 
-    while (!GetAsyncKeyState('Q')) {
+    while (!GetAsyncKeyState('Q') || !GetAsyncKeyState(VK_ESCAPE)) {
         if (!gameIsStarted) {
             if (In(txMousePos(), buttonStart.coords) && txMouseButtons() & 1) {
                 while (txMouseButtons() & 1) {
@@ -196,8 +196,8 @@ void drawMenu()
                 break;
             }
 
-            if (In(txMousePos(), buttonHelp.coords))
-            {
+            if (In(txMousePos(), buttonHelp.coords)) {
+
                 txSetColor(TX_BLACK);
                 txDrawText(buttonHelp.coords.left - 130,
                             buttonHelp.coords.bottom + 10,
@@ -205,8 +205,7 @@ void drawMenu()
                             buttonHelp.coords.bottom + 100,
                             "This hyperlink will be\nopen in browser");
             }
-            else
-            {
+            else {
                 txSetColor(TX_WHITE);
                 txSetFillColor(TX_WHITE);
                 txRectangle(buttonHelp.coords.left - 130,
@@ -220,7 +219,7 @@ void drawMenu()
                     txSleep(10);
                 }
 
-                system("start help\\help.html");
+                system("start help\\index.html");
             }
             /*
             if (In(txMousePos(), buttonPlay.coords) && txMouseButtons() & 1) {
@@ -334,6 +333,8 @@ void mainFunc()
 
     MapPart mapParts[MAP_LENGHT + 1];
 
+    txSetColor(TX_BLACK, 3);
+    txSetFillColor(TX_WHITE);
     Button completeButton = {doneBut, "\n\nSave\n\nFile"};
 
     for (int elem = 0; elem < MAP_LENGHT; elem++) {
@@ -383,6 +384,23 @@ void mainFunc()
         clickedQuest = addingBlock(clickedQuest, questBut, quest, QUEST_TYPE, &arrElem, mapParts);
         clickedWater = addingBlock(clickedWater, waterBut, water, WATER_TYPE, &arrElem, mapParts);
         clickedFire  = addingBlock(clickedFire,  fireBut,  fire,  FIRE_TYPE,  &arrElem, mapParts);
+
+        //checking
+        if (clickedBlock)
+        {
+            clickedQuest = false;
+            clickedWater = false;
+            clickedFire = false;
+        }
+        else if (clickedQuest)
+        {
+            clickedWater = false;
+            clickedFire = false;
+        }
+        else if (clickedWater)
+        {
+            clickedFire = false;
+        }
 
         //selecting block
         for (int i = 0; i < arrElem; i++) {
