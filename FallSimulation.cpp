@@ -54,8 +54,7 @@ void mainFunc();
 bool addingBlock(bool clicked, RECT blockBut, HDC pic,
                  int blocktype, int* arrElem, MapPart mapParts[]);
 
-void addingStone(int* arrElem, MapPart mapParts[]);
-int  findElem(int* arrElem, RECT expCoords);
+int readFile(string file, MapPart gettedMapParts[]);
 
 int main()
 {
@@ -221,61 +220,25 @@ void drawMenu()
 
                 system("start help\\index.html");
             }
-            /*
+
             if (In(txMousePos(), buttonPlay.coords) && txMouseButtons() & 1) {
 
-                MapPart gettedMapParts = readFile("level1.fslvl");
+                MapPart gettedMapParts[MAP_LENGHT + 1];
+                int arrElem = readFile("level1.fslvl", gettedMapParts);
 
                 for (int i = 0; i < MAP_LENGHT; i++) {
 
-                    if (gettedMapParts.visible[i]) {
+                    if (gettedMapParts[i].visible) {
 
-                        switch (gettedMapParts[i].blocktype)
-                        {
-                            default:
-                                 txBitBlt(txDC(),
-                                     gettedMapParts[i].coords.left,
-                                     gettedMapParts[i].coords.top,
-                                     60, 60,
-                                     block
-                                 );
-
-                            case BLOCK_TYPE:
-                                 txBitBlt(txDC(),
-                                     gettedMapParts[i].coords.left,
-                                     gettedMapParts[i].coords.top,
-                                     60, 60,
-                                     block
-                                 );
-
-                            case QUEST_TYPE:
-                                 txBitBlt(txDC(),
-                                     gettedMapParts[i].coords.left,
-                                     gettedMapParts[i].coords.top,
-                                     60, 60,
-                                     quest
-                                 );
-
-                            case WATER_TYPE:
-                                 txBitBlt(txDC(),
-                                     gettedMapParts[i].coords.left,
-                                     gettedMapParts[i].coords.top,
-                                     60, 60,
-                                     water
-                                 );
-
-                            case FIRE_TYPE:
-                                 txBitBlt(txDC(),
-                                     gettedMapParts[i].coords.left,
-                                     gettedMapParts[i].coords.top,
-                                     60, 60,
-                                     fire
-                                 );
-                        }
+                        txBitBlt(txDC(),
+                            gettedMapParts[i].coords.left,
+                            gettedMapParts[i].coords.top,
+                            60, 60,
+                            gettedMapParts[i].picture
+                        );
                     }
                 }
             }
-            */
         }
 
         txSleep(10);
@@ -542,5 +505,70 @@ bool addingBlock(bool clicked, RECT blockBut, HDC pic,
     }
 
     return clicked;
+}
+
+int readFile(string file, MapPart gettedMapParts[])
+{
+    for (int i = 0; i < MAP_LENGHT; i++) {
+
+        gettedMapParts[i].visible = false;
+    }
+
+    int arrElem = 0;
+
+    ifstream lvlfile(file);
+    string buff;
+
+    while (lvlfile.good()) {
+
+        getline(lvlfile, buff);
+
+        if (buff.size() > 5) {
+            int posComma  = buff.find(",");
+            int posComma2 = buff.find(",", posComma  + 1);
+            int posComma3 = buff.find(",", posComma2 + 1);
+            int posComma4 = buff.find(",", posComma3 + 1);
+
+            string buff1 = buff.substr(0,             posComma);
+            string buff2 = buff.substr(posComma  + 1, posComma2   - posComma  - 1);
+            string buff3 = buff.substr(posComma2 + 1, posComma3   - posComma2 - 1);
+            string buff4 = buff.substr(posComma3 + 1, posComma4   - posComma3 - 1);
+            string buff5 = buff.substr(posComma4 + 1, buff.size() - posComma4 - 1);
+
+            gettedMapParts[arrElem].coords = {
+                atoi(buff2.c_str()), atoi(buff3.c_str()),
+                atoi(buff4.c_str()), atoi(buff5.c_str())
+            };
+
+            gettedMapParts[arrElem].visible = true;
+
+            if (buff1 == "Block") {
+                gettedMapParts[arrElem].blocktype = BLOCK_TYPE;
+                gettedMapParts[arrElem].picture = block;
+            }
+            else if (buff1 == "Quest") {
+                gettedMapParts[arrElem].blocktype = QUEST_TYPE;
+                gettedMapParts[arrElem].picture = quest;
+            }
+            else if (buff1 == "Water") {
+                gettedMapParts[arrElem].blocktype = WATER_TYPE;
+                gettedMapParts[arrElem].picture = water;
+            }
+            else if (buff1 == "Fire") {
+                gettedMapParts[arrElem].blocktype = FIRE_TYPE;
+                gettedMapParts[arrElem].picture = fire;
+            }
+            else {
+                gettedMapParts[arrElem].blocktype = 0;
+                gettedMapParts[arrElem].visible = false;
+            }
+
+            arrElem++;
+        }
+    }
+
+    lvlfile.close();
+
+    return arrElem;
 }
 
