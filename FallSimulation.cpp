@@ -22,6 +22,7 @@ int middleY;
 int extentX;
 int extentY;
 
+bool lvlCreatingIsStarted = false;
 bool gameIsStarted = false;
 
 struct Button {
@@ -36,6 +37,8 @@ struct MapPart {
     HDC picture;
     int blocktype;
 };
+
+MapPart gettedMapParts[MAP_LENGHT + 1];
 
 HDC block;
 HDC quest;
@@ -55,6 +58,8 @@ bool addingBlock(bool clicked, RECT blockBut, HDC pic,
                  int blocktype, int* arrElem, MapPart mapParts[]);
 
 int readFile(string file, MapPart gettedMapParts[]);
+void playGame(MapPart gettedMapParts[]);
+bool areElemWithTheseCoordsExisting(RECT coords, MapPart mapParts[]);
 
 int main()
 {
@@ -90,6 +95,13 @@ int main()
     txDrawText(0, 0, extentX, 50, "Конструктор уровней игры FallSimulation");
 
     drawMenu();
+
+    if (lvlCreatingIsStarted) {
+        mainFunc();
+    }
+    else if (gameIsStarted) {
+        playGame(gettedMapParts);
+    }
 
     txEnd();
 
@@ -167,6 +179,7 @@ void drawMenu()
 
     drawButton(buttonStart);
     drawButton(buttonExit);
+    drawButton(buttonPlay);
 
     txSetColor(TX_BLACK, 3);
     txSetFillColor(TX_TRANSPARENT);
@@ -174,18 +187,18 @@ void drawMenu()
     drawButton(buttonHelp);
 
     txSleep(50);
-    bool flwindow = false;
 
     while (!GetAsyncKeyState('Q') || !GetAsyncKeyState(VK_ESCAPE)) {
-        if (!gameIsStarted) {
+        if (!lvlCreatingIsStarted && !gameIsStarted) {
             if (In(txMousePos(), buttonStart.coords) && txMouseButtons() & 1) {
                 while (txMouseButtons() & 1) {
                     txSleep(10);
                 }
 
-                //loadingAnimation(2, 3);
+                loadingAnimation(2, 3);
                 txSleep(50);
-                mainFunc();
+
+                lvlCreatingIsStarted = true;
             }
             if (In(txMousePos(), buttonExit.coords)  && txMouseButtons() & 1) {
                 while (txMouseButtons() & 1) {
@@ -223,22 +236,14 @@ void drawMenu()
 
             if (In(txMousePos(), buttonPlay.coords) && txMouseButtons() & 1) {
 
-                MapPart gettedMapParts[MAP_LENGHT + 1];
                 int arrElem = readFile("level1.fslvl", gettedMapParts);
 
-                for (int i = 0; i < MAP_LENGHT; i++) {
-
-                    if (gettedMapParts[i].visible) {
-
-                        txBitBlt(txDC(),
-                            gettedMapParts[i].coords.left,
-                            gettedMapParts[i].coords.top,
-                            60, 60,
-                            gettedMapParts[i].picture
-                        );
-                    }
-                }
+                gameIsStarted = true;
             }
+        }
+
+        if (lvlCreatingIsStarted || gameIsStarted) {
+            break;
         }
 
         txSleep(10);
@@ -268,8 +273,6 @@ void loadingAnimation(int delay, int speed)
 
 void mainFunc()
 {
-    gameIsStarted = true;
-
     int arrElem = 0;
     int selectedPict = -1;
     const int BLOCK_SIZE = 120;
@@ -309,7 +312,7 @@ void mainFunc()
     bool clickedWater = false;
     bool clickedFire  = false;
 
-    while (!GetAsyncKeyState('Q')) {
+    while (!GetAsyncKeyState('Q') || !GetAsyncKeyState(VK_ESCAPE)) {
         background(TX_WHITE);
 
         Win32::TransparentBlt(txDC(), blockBut.left, blockBut.top, 120, 120, block,
@@ -390,17 +393,35 @@ void mainFunc()
             }
         }
 
+        //round((mapParts[elem].coords.left + 30) / 60) * 60
+
         //moving picture
+        RECT oldCoords = mapParts[selectedPict].coords;
+
         if (selectedPict >= 0 && txMouseButtons() & 1) {
-            txBitBlt(txDC(), txMouseX() - 30, txMouseY() - 30,
+
+            txBitBlt(txDC(),
+                     txMouseX() - 30, txMouseY() - 30,
                      60, 60, mapParts[selectedPict].picture);
         }
         if (selectedPict >= 0 && !(txMouseButtons() & 1)) {
-            mapParts[selectedPict].coords = {
-                txMouseX() - 30, txMouseY() - 30,
-                txMouseX() + 30, txMouseY() + 30
+
+            RECT elRectCoords = {
+                (round((txMouseX() - 30) + 30 / 60) * 60),
+                (round((txMouseY() - 30) + 30 / 60) * 60),
+                (round((txMouseX() + 30) - 30 / 60) * 60),
+                (round((txMouseY() + 30) - 30 / 60) * 60)
             };
-            selectedPict = -1;
+
+            if (!areElemWithTheseCoordsExisting(elRectCoords, mapParts)) {
+
+                mapParts[selectedPict].coords = elRectCoords;
+                selectedPict = -1;
+            }
+            else {
+                mapParts[selectedPict].coords = oldCoords;
+                selectedPict = -1;
+            }
         }
 
         //button to complete LevelCreating
@@ -462,6 +483,10 @@ void mainFunc()
         }
 
         txSleep(10);
+
+        if (GetAsyncKeyState('Q') || GetAsyncKeyState(VK_ESCAPE)) {
+            break;
+        }
     }
 }
 
@@ -480,12 +505,21 @@ bool addingBlock(bool clicked, RECT blockBut, HDC pic,
 
         if (*arrElem < MAP_LENGHT) {
 
-            if (txMouseX() < txGetExtentX() - BLOCK_SIZE) {
+            RECT elRectCoords = {
+
+                (round((txMouseX() - 30) + 30 / 60) * 60),
+                (round((txMouseY() - 30) + 30 / 60) * 60),
+                (round((txMouseX() + 30) - 30 / 60) * 60),
+                (round((txMouseY() + 30) - 30 / 60) * 60)
+            };
+
+            if ((txMouseX() < txGetExtentX() - BLOCK_SIZE) &&
+                !(areElemWithTheseCoordsExisting(elRectCoords, mapParts)))
+                {
+                cout << !(areElemWithTheseCoordsExisting(elRectCoords, mapParts)) << endl;
 
                 mapParts[*arrElem] = {
-                    {
-                        txMouseX() - 30, txMouseY() - 30, txMouseX() + 30, txMouseY() + 30
-                    },  true, pic, blocktype
+                    elRectCoords, true, pic, blocktype
                 };
 
                 (*arrElem)++;
@@ -570,5 +604,48 @@ int readFile(string file, MapPart gettedMapParts[])
     lvlfile.close();
 
     return arrElem;
+}
+
+void playGame(MapPart gettedMapParts[])
+{
+    background(TX_WHITE);
+
+    for (int i = 0; i < MAP_LENGHT; i++) {
+
+        if (gettedMapParts[i].visible) {
+
+            txBitBlt(txDC(),
+                gettedMapParts[i].coords.left,
+                gettedMapParts[i].coords.top,
+                60, 60,
+                gettedMapParts[i].picture
+            );
+        }
+    }
+}
+
+bool areElemWithTheseCoordsExisting(RECT coords, MapPart mapParts[])
+{
+    RECT elemCoords;
+    bool areElemExisting;
+
+    for (int i = 0; i < MAP_LENGHT + 1; i++) {
+
+        elemCoords = mapParts[i].coords;
+
+        if (coords.left   == elemCoords.left   &&
+            coords.top    == elemCoords.top    &&
+            coords.right  == elemCoords.right  &&
+            coords.bottom == elemCoords.bottom &&
+            mapParts[i].visible
+        ) {
+            areElemExisting = true;
+        }
+        else {
+            areElemExisting = false;
+        }
+    }
+
+    return areElemExisting;
 }
 
