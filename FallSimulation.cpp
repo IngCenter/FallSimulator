@@ -195,7 +195,7 @@ void drawMenu()
                     txSleep(10);
                 }
 
-                loadingAnimation(2, 3);
+                loadingAnimation(2, 7);
                 txSleep(50);
 
                 lvlCreatingIsStarted = true;
@@ -407,10 +407,10 @@ void mainFunc()
         if (selectedPict >= 0 && !(txMouseButtons() & 1)) {
 
             RECT elRectCoords = {
-                (round((txMouseX() - 30) + 30 / 60) * 60),
-                (round((txMouseY() - 30) + 30 / 60) * 60),
-                (round((txMouseX() + 30) - 30 / 60) * 60),
-                (round((txMouseY() + 30) - 30 / 60) * 60)
+                (round((txMouseX() - 30)  / 60) * 60),
+                (round((txMouseY() - 30)  / 60) * 60),
+                (round((txMouseX() + 30)  / 60) * 60),
+                (round((txMouseY() + 30)  / 60) * 60)
             };
 
             if (!areElemWithTheseCoordsExisting(elRectCoords, mapParts)) {
@@ -507,10 +507,10 @@ bool addingBlock(bool clicked, RECT blockBut, HDC pic,
 
             RECT elRectCoords = {
 
-                (round((txMouseX() - 30) + 30 / 60) * 60),
-                (round((txMouseY() - 30) + 30 / 60) * 60),
-                (round((txMouseX() + 30) - 30 / 60) * 60),
-                (round((txMouseY() + 30) - 30 / 60) * 60)
+                (round((txMouseX() - 30)  / 60) * 60),
+                (round((txMouseY() - 30)  / 60) * 60),
+                (round((txMouseX() + 30)  / 60) * 60),
+                (round((txMouseY() + 30)  / 60) * 60)
             };
 
             if ((txMouseX() < txGetExtentX() - BLOCK_SIZE) &&
@@ -637,6 +637,7 @@ bool areElemWithTheseCoordsExisting(RECT coords, MapPart mapParts[])
             coords.top    == elemCoords.top    &&
             coords.right  == elemCoords.right  &&
             coords.bottom == elemCoords.bottom &&
+
             mapParts[i].visible
         ) {
             areElemExisting = true;
