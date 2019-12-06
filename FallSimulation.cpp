@@ -22,6 +22,8 @@ int middleY;
 int extentX;
 int extentY;
 
+int arrElem = 0;
+
 bool lvlCreatingIsStarted = false;
 bool gameIsStarted = false;
 
@@ -59,7 +61,7 @@ bool addingBlock(bool clicked, RECT blockBut, HDC pic,
 
 int readFile(string file, MapPart gettedMapParts[]);
 void playGame(MapPart gettedMapParts[]);
-bool areElemWithTheseCoordsExisting(RECT coords, MapPart mapParts[]);
+void checkElem(MapPart mapParts[]);
 
 int main()
 {
@@ -188,7 +190,7 @@ void drawMenu()
 
     txSleep(50);
 
-    while (!GetAsyncKeyState('Q') || !GetAsyncKeyState(VK_ESCAPE)) {
+    while (!GetAsyncKeyState('Q') && !GetAsyncKeyState(VK_ESCAPE)) {
         if (!lvlCreatingIsStarted && !gameIsStarted) {
             if (In(txMousePos(), buttonStart.coords) && txMouseButtons() & 1) {
                 while (txMouseButtons() & 1) {
@@ -273,7 +275,6 @@ void loadingAnimation(int delay, int speed)
 
 void mainFunc()
 {
-    int arrElem = 0;
     int selectedPict = -1;
     const int BLOCK_SIZE = 120;
 
@@ -393,11 +394,7 @@ void mainFunc()
             }
         }
 
-        //round((mapParts[elem].coords.left + 30) / 60) * 60
-
         //moving picture
-        RECT oldCoords = mapParts[selectedPict].coords;
-
         if (selectedPict >= 0 && txMouseButtons() & 1) {
 
             txBitBlt(txDC(),
@@ -413,15 +410,10 @@ void mainFunc()
                 (round((txMouseY() + 30)  / 60) * 60)
             };
 
-            if (!areElemWithTheseCoordsExisting(elRectCoords, mapParts)) {
+            mapParts[selectedPict].coords = elRectCoords;
+            checkElem(mapParts);
 
-                mapParts[selectedPict].coords = elRectCoords;
-                selectedPict = -1;
-            }
-            else {
-                mapParts[selectedPict].coords = oldCoords;
-                selectedPict = -1;
-            }
+            selectedPict = -1;
         }
 
         //button to complete LevelCreating
@@ -513,14 +505,14 @@ bool addingBlock(bool clicked, RECT blockBut, HDC pic,
                 (round((txMouseY() + 30)  / 60) * 60)
             };
 
-            if ((txMouseX() < txGetExtentX() - BLOCK_SIZE) &&
-                !(areElemWithTheseCoordsExisting(elRectCoords, mapParts)))
+            if (txMouseX() < txGetExtentX() - BLOCK_SIZE)
                 {
-                cout << !(areElemWithTheseCoordsExisting(elRectCoords, mapParts)) << endl;
 
                 mapParts[*arrElem] = {
                     elRectCoords, true, pic, blocktype
                 };
+
+                checkElem(mapParts);
 
                 (*arrElem)++;
             }
@@ -608,45 +600,83 @@ int readFile(string file, MapPart gettedMapParts[])
 
 void playGame(MapPart gettedMapParts[])
 {
-    background(TX_WHITE);
+    int minX = gettedMapParts[0].coords.left;
+    int iMin = 0;
 
-    for (int i = 0; i < MAP_LENGHT; i++) {
+    for (int i = 0; i < arrElem; i++) {
 
-        if (gettedMapParts[i].visible) {
-
-            txBitBlt(txDC(),
-                gettedMapParts[i].coords.left,
-                gettedMapParts[i].coords.top,
-                60, 60,
-                gettedMapParts[i].picture
-            );
+        if (gettedMapParts[i].coords.left < minX)
+        {
+            minX = gettedMapParts[i].coords.left;
+            iMin = i;
         }
+    }
+
+    int player_x = gettedMapParts[iMin].coords.left;
+    int player_y = gettedMapParts[iMin].coords.top;
+
+    while (!GetAsyncKeyState('Q') && !GetAsyncKeyState(VK_ESCAPE)) {
+
+        background(TX_WHITE);
+
+        txSetColor(TX_RED, 1);
+        txSetFillColor(TX_RED);
+
+        txRectangle(player_x,
+                    player_y,
+                    player_x + BLOCK_SIZE / 4,
+                    player_y + BLOCK_SIZE / 4);
+
+        for (int i = 0; i < MAP_LENGHT; i++) {
+
+            if (gettedMapParts[i].visible) {
+
+                txBitBlt(txDC(),
+                    gettedMapParts[i].coords.left,
+                    gettedMapParts[i].coords.top,
+                    60, 60,
+                    gettedMapParts[i].picture
+                );
+            }
+        }
+
+        if (GetAsyncKeyState('W')) {
+            player_y += player_speed;
+        }
+        if (GetAsyncKeyState('A')) {
+            player_x -= player_speed;
+        }
+        if (GetAsyncKeyState('S')) {
+            player_y -= player_speed;
+        }
+        if (GetAsyncKeyState('D')) {
+            player_x += player_speed;
+        }
+
+        if (GetAsyncKeyState(VK_OEM_PLUS)) {
+            player_speed++;
+        }
+        if (GetAsyncKeyState(VK_OEM_MINUS)) {
+            player_speed--;
+        }
+
+        txSleep(50);
     }
 }
 
-bool areElemWithTheseCoordsExisting(RECT coords, MapPart mapParts[])
+void checkElem(MapPart mapParts[])
 {
-    RECT elemCoords;
-    bool areElemExisting;
+    for (int elem = 0; elem < MAP_LENGHT; elem++) {
+        for (int elem2 = 0; elem2 < MAP_LENGHT; elem2++) {
 
-    for (int i = 0; i < MAP_LENGHT + 1; i++) {
+            if (elem2 != elem &&
+                mapParts[elem].coords.left == mapParts[elem2].coords.left &&
+                mapParts[elem].coords.top == mapParts[elem2].coords.top) {
 
-        elemCoords = mapParts[i].coords;
-
-        if (coords.left   == elemCoords.left   &&
-            coords.top    == elemCoords.top    &&
-            coords.right  == elemCoords.right  &&
-            coords.bottom == elemCoords.bottom &&
-
-            mapParts[i].visible
-        ) {
-            areElemExisting = true;
-        }
-        else {
-            areElemExisting = false;
+                mapParts[elem].coords.left = mapParts[elem].coords.left + 60;
+                mapParts[elem].coords.right = mapParts[elem].coords.right + 60;
+            }
         }
     }
-
-    return areElemExisting;
 }
 
