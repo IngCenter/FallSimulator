@@ -7,6 +7,7 @@
 
 using namespace std;
 
+
 int main()
 {
     txCreateWindow(1300, 600);
@@ -38,7 +39,7 @@ int main()
 
     txSetColor(TX_BLACK, 3);
     txSetFillColor(TX_WHITE);
-    txDrawText(0, 0, extentX, 50, "ГЉГ®Г­Г±ГІГ°ГіГЄГІГ®Г° ГіГ°Г®ГўГ­ГҐГ© ГЁГЈГ°Г» FallSimulation");
+    txDrawText(0, 0, extentX, 50, "Конструктор уровней игры FallSimulation");
 
     drawMenu();
 
