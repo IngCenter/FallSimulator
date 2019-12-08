@@ -33,6 +33,12 @@
 			<Add option="-fexceptions" />
 		</Compiler>
 		<Unit filename="FallSimulation.cpp" />
+		<Unit filename="lib/Button.h" />
+		<Unit filename="lib/Consts.h" />
+		<Unit filename="lib/ElemFunctions.h" />
+		<Unit filename="lib/MapPart.h" />
+		<Unit filename="lib/ModesFunctions.h" />
+		<Unit filename="lib/TXLib.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />
