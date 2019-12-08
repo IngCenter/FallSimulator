@@ -1,37 +1,23 @@
+#pragma once
+
 #include <TXLib.h>
 #include "Consts.h"
-#include "ModesFunctions.h"
+#include "Button.h"
+#include "MapPart.h"
 
 #include <iostream>
 #include <fstream>
 
-#pragma once
+using namespace std;
+
 
 //This library containing functions for work with the elements
 
-void drawButton(Button but);
 bool addingBlock(bool clicked, RECT blockBut, HDC pic,
                  int blocktype, int* arrElem, MapPart mapParts[]);
 
 int readFile(string file, MapPart gettedMapParts[]);
 void checkElem(MapPart mapParts[]);
-
-void drawButton(Button but)
-{
-    //drawing button
-    txRectangle(but.coords.left,
-                but.coords.top,
-                but.coords.right,
-                but.coords.bottom);
-
-    //drawing text
-    txDrawText (but.coords.left,
-                but.coords.top,
-                but.coords.right,
-                but.coords.bottom,
-                but.text,
-                DT_CENTER | DT_VCENTER);
-}
 
 bool addingBlock(bool clicked, RECT blockBut, HDC pic,
                  int blocktype, int* arrElem, MapPart mapParts[])

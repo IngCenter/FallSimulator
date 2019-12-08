@@ -7,7 +7,6 @@
 
 using namespace std;
 
-void background(COLORREF color);
 
 int main()
 {
@@ -64,10 +63,3 @@ int main()
 
     txDisableAutoPause();
 }
-
-void background(COLORREF color)
-{
-    txSetFillColor(color);
-    txClear();
-}
-

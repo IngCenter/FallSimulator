@@ -1,5 +1,7 @@
 #include <TXLib.h>
 #include "Consts.h"
+#include "Button.h"
+#include "MapPart.h"
 #include "ElemFunctions.h"
 
 #include <iostream>
@@ -10,6 +12,7 @@
 //This library containing game mode functions
 
 void drawMenu();
+void background(COLORREF color);
 void loadingAnimation(int delay, int speed);
 void mainFunc();
 void playGame(MapPart gettedMapParts[]);
@@ -123,6 +126,13 @@ void drawMenu()
         txSleep(10);
     }
 }
+
+void background(COLORREF color)
+{
+    txSetFillColor(color);
+    txClear();
+}
+
 
 void loadingAnimation(int delay, int speed)
 {

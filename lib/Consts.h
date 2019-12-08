@@ -1,7 +1,3 @@
-#include <TXLib.h>
-#include "ElemFunctions.h"
-#include "ModesFunctions.h"
-
 #pragma once
 
 //This library containing constants, global variables and structures
@@ -31,21 +27,6 @@ int arrElem = 0;
 bool lvlCreatingIsStarted = false;
 bool gameIsStarted = false;
 
-struct Button {
-    RECT coords;
-    const char* text;
-    HDC picture;
-};
-
-struct MapPart {
-    RECT coords;
-    bool visible;
-    HDC picture;
-    int blocktype;
-};
-
-MapPart gettedMapParts[MAP_LENGHT + 1];
-
 HDC block;
 HDC quest;
 HDC water;
@@ -54,4 +35,3 @@ HDC fire;
 HDC light_stone;
 HDC dark_stone;
 HDC vdark_stone;
-
