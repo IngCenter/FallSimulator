@@ -10,7 +10,6 @@
 
 using namespace std;
 
-
 //This library containing functions for work with the elements
 
 bool addingBlock(bool clicked, RECT blockBut, HDC pic,

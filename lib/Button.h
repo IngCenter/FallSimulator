@@ -1,5 +1,7 @@
 #pragma once
 
+//This library containing function and structure for buttons
+
 struct Button {
     RECT coords;
     const char* text;
