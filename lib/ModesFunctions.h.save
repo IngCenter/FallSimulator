@@ -479,10 +479,8 @@ void playGame(MapPart gettedMapParts[])
             player_speed -= BLOCK_SIZE / 10;
         }
 
-        if (player_y > txGetExtentY()) {
-            player_y -= player_speed;
-        }
-
+        if (
+        
         if (player_x > txGetExtentX()) {
             txMessageBox("You win!", "Winner");
             break;

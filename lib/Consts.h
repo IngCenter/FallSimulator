@@ -1,6 +1,6 @@
 #pragma once
 
-//This library containing constants, global variables and structures
+//This library containing main constants and global variables
 
 const COLORREF MY_LIGHTBLUE = RGB(75,  127, 196);
 const COLORREF MY_BISQUE    = RGB(255, 214, 89);

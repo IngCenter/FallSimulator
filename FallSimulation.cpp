@@ -7,7 +7,6 @@
 
 using namespace std;
 
-
 int main()
 {
     txCreateWindow(1300, 600);
