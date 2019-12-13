@@ -10,6 +10,7 @@ struct Button {
 
 void drawButton(Button but);
 
+//function for drawing button
 void drawButton(Button but)
 {
     //drawing button
