@@ -1,0 +1,19 @@
+#opensource-text {
+	color: darkturquoise;
+}
+
+span {
+	font-weight: bold;
+}
+
+.spoiler {
+	padding: 10px;
+	background-color: bisque;
+}
+.spoiler > input + .box {
+	display: none;
+}
+
+.spoiler > input:checked + .box {
+	display: block;
+}

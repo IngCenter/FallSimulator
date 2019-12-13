@@ -18,6 +18,7 @@ bool addingBlock(bool clicked, RECT blockBut, HDC pic,
 int readFile(string file, MapPart gettedMapParts[]);
 void checkElem(MapPart mapParts[]);
 
+//function for adding block (in editor)
 bool addingBlock(bool clicked, RECT blockBut, HDC pic,
                  int blocktype, int* arrElem, MapPart mapParts[])
 {
@@ -69,6 +70,7 @@ bool addingBlock(bool clicked, RECT blockBut, HDC pic,
     return clicked;
 }
 
+//reading parameters for blocks (in play mode)
 int readFile(string file, MapPart gettedMapParts[])
 {
     for (int i = 0; i < MAP_LENGHT; i++) {
@@ -134,6 +136,7 @@ int readFile(string file, MapPart gettedMapParts[])
     return arrElem;
 }
 
+//checking for elements with the same coordinates
 void checkElem(MapPart mapParts[])
 {
     for (int elem = 0; elem < MAP_LENGHT; elem++) {

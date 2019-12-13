@@ -1,5 +1,7 @@
 #pragma once
 
+//This library containing structure and array for map parts
+
 struct MapPart {
     RECT coords;
     bool visible;

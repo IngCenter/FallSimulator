@@ -17,6 +17,7 @@ void loadingAnimation(int delay, int speed);
 void mainFunc();
 void playGame(MapPart gettedMapParts[]);
 
+//function for drawing menu and handling clicks in main menu
 void drawMenu()
 {
     //button "Start" (to start level creating)
@@ -127,12 +128,14 @@ void drawMenu()
     }
 }
 
+//function for clear background
 void background(COLORREF color)
 {
     txSetFillColor(color);
     txClear();
 }
 
+//loading animation
 void loadingAnimation(int delay, int speed)
 {
     background(TX_WHITE);
@@ -154,6 +157,7 @@ void loadingAnimation(int delay, int speed)
     background(TX_WHITE);
 }
 
+//main editor function
 void mainFunc()
 {
     int selectedPict = -1;
@@ -363,6 +367,7 @@ void mainFunc()
     }
 }
 
+//main play mode function
 void playGame(MapPart gettedMapParts[])
 {
     int minX = gettedMapParts[0].coords.left;
