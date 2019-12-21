@@ -46,7 +46,7 @@ int main()
         mainFunc();
     }
     else if (gameIsStarted) {
-        playGame(gettedMapParts);
+        playGame(receivedMapParts);
     }
 
     txEnd();
